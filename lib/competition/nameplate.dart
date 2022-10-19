@@ -42,7 +42,7 @@ class _NameplateState extends State<Nameplate> {
           if (ele != null) {
             setState(() {
               items.add(_card(context, ele.data()["image"], Colors.black,
-                  Colors.blueAccent, index));
+                  Color(int.parse(ele.data()["color"])), index));
             });
           }
           print("はい");

@@ -4,6 +4,7 @@ import 'package:path/path.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'competition.dart';
 
 class Standby extends StatefulWidget {
   const Standby({Key? key}) : super(key: key);
@@ -16,22 +17,46 @@ class _StandbyState extends State<Standby> {
 
   bool connect = false;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   var channel = IOWebSocketChannel.connect(Uri.parse('ws://localhost:1234'));
-  //   channel.stream.listen((event) {
-  //     setState(() {
-  //       connect = event;
-  //     });
-  //     channel.sink.add("receivec");
-  //   });
-  // }
+  String _text = '';
 
+  dynamic channel;
+
+  List<String> messages = [];
+
+  void _handleText(String e) {
+    setState(() {
+      _text = e;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    channel = IOWebSocketChannel.connect(Uri.parse('ws://133.55.175.32:3000'));
+    // channel.stream.listen((message) {
+    //   setState(() {
+    //     messages.add(message);
+    //   });
+    // });
+  }
+
+  @override
   void _changeText() {
     setState(() {
       situation = "対戦相手が見つかりました";
     });
+    if (situation == "対戦相手が見つかりました") {}
+  }
+
+  void _sendMessage() {
+    print("入力");
+    channel.sink.add(_text);
+  }
+
+  @override
+  void dispose() {
+    channel.sink.close(status.goingAway);
+    super.dispose();
   }
 
   @override
@@ -52,8 +77,42 @@ class _StandbyState extends State<Standby> {
         children: <Widget>[
           Text(situation,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 27)),
+          Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: '名前を入力してください',
+              ),
+              enabled: true,
+              // 入力数
+              maxLength: 10,
+              style: TextStyle(color: Colors.blue),
+              obscureText: false,
+              maxLines: 1,
+              //パスワード
+              onChanged: _handleText,
+            ),
+          ),
+          ElevatedButton(
+            child: const Text('ああ'),
+            onPressed: _sendMessage,
+          ),
           CircularProgressIndicator(),
-          ElevatedButton(onPressed: _changeText, child: Text("ボタン")),
+          ElevatedButton(
+              onPressed: () {
+                _changeText();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Competition()),
+                );
+              },
+              child: Text("ボタン")),
+          StreamBuilder(
+            stream: channel.stream,
+            builder: (context, snapshot) {
+              return Text(snapshot.hasData ? '${snapshot.data}' : '');
+            },
+          ),
         ],
       )),
     );

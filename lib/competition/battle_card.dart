@@ -10,7 +10,7 @@ class Battle_Card extends StatefulWidget {
 }
 
 class _Battle_CardState extends State<Battle_Card> {
-  void test() {
+  void battle() {
     if (select_card != null) {
       setState(() {
         battle_items.add(_card(
@@ -32,7 +32,7 @@ class _Battle_CardState extends State<Battle_Card> {
       child: Card(
         color: color,
         child: InkWell(
-          onTap: test,
+          onTap: battle,
           child: Card(
             color: body_color,
             child: Column(
